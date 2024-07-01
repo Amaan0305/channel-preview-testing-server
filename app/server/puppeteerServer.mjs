@@ -117,7 +117,7 @@ app.post('/screenshot', async (req, res) => {
       // const element = await page.$(selector);
 
       // if (element) {
-        const screenshotBuffer = await element.screenshot({ encoding: 'binary' });
+        const screenshotBuffer = await page.screenshot({ encoding: 'binary' });
         const screenshotName = `${directory}/${channel}/${name}_${viewport.height}x${viewport.width}`;
 
         const uploadResult = await new Promise((resolve, reject) => {
