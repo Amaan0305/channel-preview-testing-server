@@ -76,8 +76,12 @@ async function runLoginByPassCode(page, loginByPassCode) {
   }
 }
 
-
-
+app.get('/', (req, res) => {
+  res.send('Live');
+})
+app.get('/screeenshot', (req, res) => {
+  res.send('Live Screenshot');
+})
 
 app.post('/screenshot', async (req, res) => {
   const { link  , selector, name, directory, channel } = req.body;
