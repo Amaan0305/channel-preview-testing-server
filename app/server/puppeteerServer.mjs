@@ -46,35 +46,35 @@ async function initializePuppeteer() {
 
 app.use(express.json());
 
-// async function facebookLoginByPass(page) {
-  // await page.evaluate(() => {
-  //   const closeButton = document.querySelector('div[role=button][aria-label=Close]');
-  //   if (closeButton) {
-  //     closeButton.click();
-  //   }
-  // });
-  // await page.waitForSelector('div[data-nosnippet]');
-  // await page.addStyleTag({
-  //   content: `
-  //     div[data-nosnippet], div[role=banner] {
-  //       display: none !important;
-  //     }
-  // `});
-// }
-
-async function runLoginByPassCode(page, loginByPassCode) {
-  try {
-    // Define the function within page.evaluate to ensure it's executed in the page context
-    const runCode = new Function(`
-      return (async () => {
-        ${loginByPassCode}
-      })();
-    `);
-    await page.evaluate(runCode);
-  } catch (error) {
-    console.error('Error executing loginByPass code:', error);
-  }
+async function facebookLoginByPass(page) {
+  await page.evaluate(() => {
+    const closeButton = document.querySelector('div[role=button][aria-label=Close]');
+    if (closeButton) {
+      closeButton.click();
+    }
+  });
+  await page.waitForSelector('div[data-nosnippet]');
+  await page.addStyleTag({
+    content: `
+      div[data-nosnippet], div[role=banner] {
+        display: none !important;
+      }
+  `});
 }
+
+// async function runLoginByPassCode(page, loginByPassCode) {
+//   try {
+//     // Define the function within page.evaluate to ensure it's executed in the page context
+//     const runCode = new Function(`
+//       return (async () => {
+//         ${loginByPassCode}
+//       })();
+//     `);
+//     await page.evaluate(runCode);
+//   } catch (error) {
+//     console.error('Error executing loginByPass code:', error);
+//   }
+// }
 
 app.get('/', (req, res) => {
   res.send('Live');
@@ -98,25 +98,25 @@ app.post('/screenshot', async (req, res) => {
 
     for (const viewport of viewports) {
       await page.setViewport(viewport);
-      const socialMediaChannel = await SocialMedia.findOne({ channelName: channel });
-      const loginByPassCode = socialMediaChannel ? socialMediaChannel.loginByPass : null;
-      // console.log(loginByPassCode);
-      if (loginByPassCode) {
-        // Execute the loginByPass code in the context of the Puppeteer page
-        await runLoginByPassCode(page, loginByPassCode);
-      }
-      await page.waitForSelector(selector, { timeout: 60000 });
+      // const socialMediaChannel = await SocialMedia.findOne({ channelName: channel });
+      // const loginByPassCode = socialMediaChannel ? socialMediaChannel.loginByPass : null;
+      // // console.log(loginByPassCode);
+      // if (loginByPassCode) {
+      //   // Execute the loginByPass code in the context of the Puppeteer page
+      //   await runLoginByPassCode(page, loginByPassCode);
+      // }
+      // await page.waitForSelector(selector, { timeout: 60000 });
 
-      await page.evaluate((sel) => {
-        const element = document.querySelector(sel);
-        if (element) {
-          element.style.zIndex = 1000000;
-        }
-      }, selector);
+      // await page.evaluate((sel) => {
+      //   const element = document.querySelector(sel);
+      //   if (element) {
+      //     element.style.zIndex = 1000000;
+      //   }
+      // }, selector);
 
-      const element = await page.$(selector);
+      // const element = await page.$(selector);
 
-      if (element) {
+      // if (element) {
         const screenshotBuffer = await element.screenshot({ encoding: 'binary' });
         const screenshotName = `${directory}/${channel}/${name}_${viewport.height}x${viewport.width}`;
 
@@ -152,9 +152,10 @@ app.post('/screenshot', async (req, res) => {
           const newScreenshot = new ScreenshotTest(screenshotData);
           await newScreenshot.save();
         }
-      } else {
-        return res.status(404).send('Selector not found');
-      }
+      // } 
+      // else {
+      //   return res.status(404).send('Selector not found');
+      // }
     }
 
     res.status(200).send({ message: "The screenshots have been generated", screenshots });
