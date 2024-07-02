@@ -49,29 +49,29 @@ app.use(cors(corsOptions));
 
 async function initializePuppeteer() {
   browser = await puppeteer.launch({ headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox']});
-  page = await browser.newPage();
-  await page.setUserAgent(
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
-  );
+  // page = await browser.newPage();
+  // await page.setUserAgent(
+  //   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+  // );
 }
 
 app.use(express.json());
 
-async function facebookLoginByPass(page) {
-  await page.evaluate(() => {
-    const closeButton = document.querySelector('div[role=button][aria-label=Close]');
-    if (closeButton) {
-      closeButton.click();
-    }
-  });
-  await page.waitForSelector('div[data-nosnippet]');
-  await page.addStyleTag({
-    content: `
-      div[data-nosnippet], div[role=banner] {
-        display: none !important;
-      }
-  `});
-}
+// async function facebookLoginByPass(page) {
+//   await page.evaluate(() => {
+//     const closeButton = document.querySelector('div[role=button][aria-label=Close]');
+//     if (closeButton) {
+//       closeButton.click();
+//     }
+//   });
+//   await page.waitForSelector('div[data-nosnippet]');
+//   await page.addStyleTag({
+//     content: `
+//       div[data-nosnippet], div[role=banner] {
+//         display: none !important;
+//       }
+//   `});
+// }
 
 // async function runLoginByPassCode(page, loginByPassCode) {
 //   try {
@@ -165,22 +165,6 @@ const instagramCookies = [
     httpOnly: false,
     secure: true,
   },
-  // {
-  //   name: 'shbid',
-  //   value: 'your_shbid_value',
-  //   domain: '.instagram.com',
-  //   path: '/',
-  //   httpOnly: false,
-  //   secure: true,
-  // },
-  // {
-  //   name: 'shbts',
-  //   value: 'your_shbts_value',
-  //   domain: '.instagram.com',
-  //   path: '/',
-  //   httpOnly: false,
-  //   secure: true,
-  // },
   // Add other cookies as needed
 ];
 app.post('/screenshot', async (req, res) => {
@@ -192,23 +176,28 @@ app.post('/screenshot', async (req, res) => {
   const url = link.url;
   const scenario = link.scenario;
   try {
-    let Cookies;
-    switch(channel){
-      case "facebook":
-        Cookies = facebookCookies;
-        break;
-      case "twitter":
-        Cookies = twitterCookies;
-        break;
-      case "instagram":
-        Cookies = instagramCookies;
-        break;
-    }
-    await page.setCookie(...Cookies);
-    await page.goto(url, { waitUntil: 'networkidle2' });
-
     const screenshots = [];
     for (const viewport of viewports) {
+      page = await browser.newPage();
+      await page.setUserAgent(
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+      );
+      let Cookies;
+      switch(channel){
+        case "facebook":
+          Cookies = facebookCookies;
+          break;
+        case "twitter":
+          Cookies = twitterCookies;
+          break;
+        case "instagram":
+          Cookies = instagramCookies;
+          break;
+        default:
+          Cookies = facebookCookies;
+      }
+      await page.setCookie(...Cookies);
+      await page.goto(url, { waitUntil: 'networkidle2' });
       await page.setViewport(viewport);
       // const socialMediaChannel = await SocialMedia.findOne({ channelName: channel });
       // const loginByPassCode = socialMediaChannel ? socialMediaChannel.loginByPass : null;
@@ -268,8 +257,8 @@ app.post('/screenshot', async (req, res) => {
       // else {
       //   return res.status(404).send('Selector not found');
       // }
+      await page.close();
     }
-
     res.status(200).send({ message: "The screenshots have been generated", screenshots });
   } catch (error) {
     console.error(error);
