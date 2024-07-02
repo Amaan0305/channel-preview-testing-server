@@ -197,7 +197,7 @@ app.post('/screenshot', async (req, res) => {
           Cookies = facebookCookies;
       }
       await page.setCookie(...Cookies);
-      await page.goto(url, { waitUntil: 'networkidle2' });
+      await page.goto(url, { waitUntil: 'networkidle0' });
       await page.setViewport(viewport);
       // const socialMediaChannel = await SocialMedia.findOne({ channelName: channel });
       // const loginByPassCode = socialMediaChannel ? socialMediaChannel.loginByPass : null;
@@ -206,19 +206,19 @@ app.post('/screenshot', async (req, res) => {
       //   // Execute the loginByPass code in the context of the Puppeteer page
       //   await runLoginByPassCode(page, loginByPassCode);
       // }
-      // await page.waitForSelector(selector, { timeout: 60000 });
+      await page.waitForSelector(selector, { timeout: 60000 });
 
-      // await page.evaluate((sel) => {
-      //   const element = document.querySelector(sel);
-      //   if (element) {
-      //     element.style.zIndex = 1000000;
-      //   }
-      // }, selector);
+      await page.evaluate((sel) => {
+        const element = document.querySelector(sel);
+        if (element) {
+          element.style.zIndex = 1000000;
+        }
+      }, selector);
 
-      // const element = await page.$(selector);
+      const element = await page.$(selector);
 
-      // if (element) {
-        const screenshotBuffer = await page.screenshot({ encoding: 'binary' });
+      if (element) {
+        const screenshotBuffer = await element.screenshot({ encoding: 'binary' });
         const screenshotName = `${directory}/${channel}/${name}_${viewport.height}x${viewport.width}`;
 
         const uploadResult = await new Promise((resolve, reject) => {
@@ -253,10 +253,10 @@ app.post('/screenshot', async (req, res) => {
           const newScreenshot = new ScreenshotTest(screenshotData);
           await newScreenshot.save();
         }
-      // } 
-      // else {
-      //   return res.status(404).send('Selector not found');
-      // }
+      } 
+      else {
+        return res.status(404).send('Selector not found');
+      }
       await page.close();
     }
     res.status(200).send({ message: "The screenshots have been generated", screenshots });
