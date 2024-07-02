@@ -27,28 +27,26 @@ const viewports = [
 
 // Add stealth plugin and use it with puppeteer-extra
 puppeteer.use(StealthPlugin());
-// CORS options to allow only specific origin
-const allowedOrigins = ['https://channel-preview-testing-frontend.vercel.app'];
+// // CORS options to allow only specific origin
+// const allowedOrigins = ['https://channel-preview-testing-frontend.vercel.app'];
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  }
-};
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps, curl requests)
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.indexOf(origin) === -1) {
+//       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+//       return callback(new Error(msg), false);
+//     }
+//     return callback(null, true);
+//   }
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
-// Use CORS middleware with options
-app.use(cors(corsOptions));
 
 async function initializePuppeteer() {
-  browser = await puppeteer.launch({ headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox']});
+  // browser = await puppeteer.launch({ headless: true,args: ['--no-sandbox', '--disable-setuid-sandbox']});
   // page = await browser.newPage();
   // await page.setUserAgent(
   //   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
@@ -178,6 +176,7 @@ app.post('/screenshot', async (req, res) => {
   try {
     const screenshots = [];
     for (const viewport of viewports) {
+      browser = await puppeteer.launch({ headless: true});
       page = await browser.newPage();
       await page.setUserAgent(
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
@@ -196,7 +195,7 @@ app.post('/screenshot', async (req, res) => {
         default:
           Cookies = facebookCookies;
       }
-      await page.setCookie(...Cookies);
+      // await page.setCookie(...Cookies);
       await page.goto(url, { waitUntil: 'networkidle0' });
       await page.setViewport(viewport);
       // const socialMediaChannel = await SocialMedia.findOne({ channelName: channel });
@@ -206,19 +205,19 @@ app.post('/screenshot', async (req, res) => {
       //   // Execute the loginByPass code in the context of the Puppeteer page
       //   await runLoginByPassCode(page, loginByPassCode);
       // }
-      await page.waitForSelector(selector, { timeout: 60000 });
+      // await page.waitForSelector(selector, { timeout: 60000 });
 
-      await page.evaluate((sel) => {
-        const element = document.querySelector(sel);
-        if (element) {
-          element.style.zIndex = 1000000;
-        }
-      }, selector);
+      // await page.evaluate((sel) => {
+      //   const element = document.querySelector(sel);
+      //   if (element) {
+      //     element.style.zIndex = 1000000;
+      //   }
+      // }, selector);
 
-      const element = await page.$(selector);
+      // const element = await page.$(selector);
 
-      if (element) {
-        const screenshotBuffer = await element.screenshot({ encoding: 'binary' });
+      // if (element) {
+        const screenshotBuffer = await page.screenshot({ encoding: 'binary' });
         const screenshotName = `${directory}/${channel}/${name}_${viewport.height}x${viewport.width}`;
 
         const uploadResult = await new Promise((resolve, reject) => {
@@ -253,10 +252,10 @@ app.post('/screenshot', async (req, res) => {
           const newScreenshot = new ScreenshotTest(screenshotData);
           await newScreenshot.save();
         }
-      } 
-      else {
-        return res.status(404).send('Selector not found');
-      }
+      // } 
+      // else {
+      //   return res.status(404).send('Selector not found');
+      // }
       await page.close();
     }
     res.status(200).send({ message: "The screenshots have been generated", screenshots });
