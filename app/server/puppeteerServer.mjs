@@ -28,10 +28,21 @@ const viewports = [
 // Add stealth plugin and use it with puppeteer-extra
 puppeteer.use(StealthPlugin());
 // CORS options to allow only specific origin
+const allowedOrigins = ['https://channel-preview-testing-frontend.vercel.app'];
+
 const corsOptions = {
-  origin: 'http://localhost:3000',
-  optionsSuccessStatus: 200 // For legacy browser support
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
 };
+
+app.use(cors(corsOptions));
 
 // Use CORS middleware with options
 app.use(cors(corsOptions));
