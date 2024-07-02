@@ -187,10 +187,10 @@ app.post('/screenshot', async (req, res) => {
         Cookies = facebookCookies;
         break;
       case "twitter":
-        Cookies = facebookCookies;
+        Cookies = twitterCookies;
         break;
       case "instagram":
-        Cookies = facebookCookies;
+        Cookies = instagramCookies;
         break;
     }
     await page.setCookie(...Cookies);
