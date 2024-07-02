@@ -82,7 +82,96 @@ app.get('/', (req, res) => {
 app.get('/screeenshot', (req, res) => {
   res.send('Live Screenshot');
 })
+const facebookCookies = [
+  {
+    name: 'c_user',
+    value: '61560963294945',
+    domain: '.facebook.com',
+    path: '/',
+    httpOnly: true,
+    secure: true,
+  },
+  {
+    name: 'xs',
+    value: '42%3Az0lvdizRd-vd5A%3A2%3A1718002670%3A-1%3A-1%3A%3AAcWRIKX3PKDfUn67xb37yTSFRetETQ35aoOYRyAS2gQ',
+    domain: '.facebook.com',
+    path: '/',
+    httpOnly: true,
+    secure: true,
+  },
+  // Add other cookies as needed
+];
 
+const twitterCookies = [
+  {
+    name: 'auth_token',
+    value: '35841f6c0ba228b21f03473d5df8bedbc04692ed',
+    domain: '.twitter.com',
+    path: '/',
+    httpOnly: true,
+    secure: true,
+  },
+  {
+    name: 'twid',
+    value: 'u%3D1802024118168018944',
+    domain: '.twitter.com',
+    path: '/',
+    httpOnly: true,
+    secure: true,
+  },
+  // Add other cookies as needed
+];
+const instagramCookies = [
+  {
+    name: 'sessionid',
+    value: '67108555120%3Ago81XI880TmK0c%3A11%3AAYeS9bzee75pTva1q2qk2WjgGkp_UtCWMdMujD681w',
+    domain: '.instagram.com',
+    path: '/',
+    httpOnly: true,
+    secure: true,
+  },
+  {
+    name: 'csrftoken',
+    value: 'eFB2AQ2Q5EBDAluyBd7NlRr79J1ovxFx',
+    domain: '.instagram.com',
+    path: '/',
+    httpOnly: false,
+    secure: true,
+  },
+  {
+    name: 'ds_user_id',
+    value: '67108555120',
+    domain: '.instagram.com',
+    path: '/',
+    httpOnly: false,
+    secure: true,
+  },
+  {
+    name: 'mid',
+    value: 'ZoK6awAEAAEcMM9G9nj0GErJRoad',
+    domain: '.instagram.com',
+    path: '/',
+    httpOnly: false,
+    secure: true,
+  },
+  // {
+  //   name: 'shbid',
+  //   value: 'your_shbid_value',
+  //   domain: '.instagram.com',
+  //   path: '/',
+  //   httpOnly: false,
+  //   secure: true,
+  // },
+  // {
+  //   name: 'shbts',
+  //   value: 'your_shbts_value',
+  //   domain: '.instagram.com',
+  //   path: '/',
+  //   httpOnly: false,
+  //   secure: true,
+  // },
+  // Add other cookies as needed
+];
 app.post('/screenshot', async (req, res) => {
   const { link  , selector, name, directory, channel } = req.body;
 
@@ -92,10 +181,22 @@ app.post('/screenshot', async (req, res) => {
   const url = link.url;
   const scenario = link.scenario;
   try {
+    let Cookies;
+    switch(channel){
+      case "facebook":
+        Cookies = facebookCookies;
+        break;
+      case "twitter":
+        Cookies = facebookCookies;
+        break;
+      case "instagram":
+        Cookies = facebookCookies;
+        break;
+    }
+    await page.setCookie(...Cookies);
     await page.goto(url, { waitUntil: 'networkidle2' });
 
     const screenshots = [];
-
     for (const viewport of viewports) {
       await page.setViewport(viewport);
       // const socialMediaChannel = await SocialMedia.findOne({ channelName: channel });
